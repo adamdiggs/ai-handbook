@@ -106,7 +106,7 @@ main{max-width:68ch; margin:0 auto; padding:24px 0 96px; min-width:0;}
 /* ============================================================
    Sections
    ============================================================ */
-section.block{padding:40px 0; border-top:1px solid var(--line); scroll-margin-top:80px;}
+section.block{padding:40px 0; border-top:1px solid var(--line); scroll-margin-top:60px;}
 section.block:first-of-type{border-top:none;}
 section.block > .eyebrow{display:block; margin-bottom:10px;}
 section.block h2{margin-bottom:18px; max-width:24ch;}
@@ -117,6 +117,109 @@ ul.clean li{position:relative; padding-left:26px; margin-bottom:9px; line-height
 ul.clean li::before{content:""; position:absolute; left:4px; top:10px; width:7px; height:7px; border:1.5px solid var(--diggs-sage); border-top:none; border-right:none; transform:rotate(-45deg);}
 .muted{color:var(--diggs-stone);}
 h3.sub{margin:30px 0 12px;}
+
+/* ============================================================
+   Topbar current-section nav + shared jump-nav dropdown
+   A compact current-section button lives in the sticky topbar and
+   triggers one shared menu listing all 9 sections. Body headings scroll
+   normally (no sticky overlap). Replaces the old sidebar table of contents.
+   ============================================================ */
+.topnav{
+  display:flex; align-items:center; gap:10px; min-width:0; flex:0 1 auto;
+  margin:0 16px; padding:6px 10px; border-radius:2px;
+  background:transparent; border:1px solid transparent; cursor:pointer;
+  font-family:var(--font-body); color:inherit;
+  transition:background .2s var(--ease-out), border-color .2s var(--ease-out);
+}
+.topnav:hover{background:var(--sage-soft);}
+.topnav:focus-visible{outline:2px solid var(--diggs-stone); outline-offset:2px;}
+.topnav[aria-expanded="true"]{background:var(--sage-soft); border-color:var(--line);}
+.topnav-num{
+  flex:none; font-weight:600; font-size:11px; letter-spacing:.16em; color:var(--diggs-taupe);
+}
+.topnav-num:empty{display:none;}   /* collapse the number (and its gap) for the placeholder */
+.topnav-title{
+  min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-weight:600; font-size:14px; letter-spacing:.01em; color:var(--diggs-ink);
+}
+.topnav-chevron{
+  flex:none; font-size:13px; line-height:1; color:var(--diggs-taupe);
+  transition:transform .25s var(--ease-out), color .2s var(--ease-out);
+}
+.topnav:hover .topnav-chevron{color:var(--diggs-ink);}
+.topnav[aria-expanded="true"] .topnav-chevron{transform:rotate(180deg); color:var(--diggs-ink);}
+/* On phones, drop the secondary tag so the section button has room to truncate */
+@media (max-width:640px){
+  .topbar .tag{display:none;}
+  .topnav{margin:0 8px;}
+}
+
+/* Shared dropdown menu, pinned under the topbar */
+#secnav{
+  position:fixed; top:60px; left:0; right:0; z-index:40;   /* under topbar (50) */
+  display:flex; justify-content:center;
+  pointer-events:none;                                     /* only the panel catches clicks */
+}
+#secnav[hidden]{display:none;}
+.secnav-panel{
+  pointer-events:auto;
+  width:min(68ch, calc(100% - 48px)); margin:8px 24px;
+  background:color-mix(in srgb, var(--diggs-paper) 96%, transparent);
+  backdrop-filter:saturate(1.1) blur(10px);
+  border:1px solid var(--line); border-radius:2px; box-shadow:var(--shadow-lg);
+  padding:14px 14px 16px;
+  transform-origin:top center;
+  animation:secnav-in .22s var(--ease-out) both;
+}
+@keyframes secnav-in{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);}}
+.secnav-group{margin-top:14px;}
+.secnav-group:first-child{margin-top:2px;}
+.secnav-grouplabel{
+  display:flex; align-items:center; gap:9px;
+  font-family:var(--font-body); font-weight:600; font-size:11px;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--diggs-taupe);
+  margin:0 8px 6px;
+}
+.secnav-grouplabel::before{content:""; width:18px; height:2px; background:var(--diggs-sage); flex:none;}
+.secnav-panel a{
+  display:flex; align-items:baseline; gap:12px;
+  padding:8px 8px; border-radius:2px;
+  font-family:var(--font-body); font-size:15px; line-height:1.3; color:var(--diggs-ink);
+  transition:background .15s var(--ease-out);
+}
+.secnav-panel a:hover{background:var(--sage-soft);}
+.secnav-panel a:focus-visible{outline:2px solid var(--diggs-stone); outline-offset:-2px;}
+.secnav-panel a .n{
+  flex:none; font-weight:600; font-size:12px; letter-spacing:.1em; color:var(--diggs-taupe);
+  min-width:2.2ch; transform:translateY(1px);
+}
+.secnav-panel a[aria-current="true"]{background:var(--sage-soft);}
+.secnav-panel a[aria-current="true"] .n{color:var(--diggs-ink);}
+.secnav-panel a[aria-current="true"] .t{font-weight:700;}
+.secnav-panel a[aria-current="true"]::after{
+  content:""; flex:none; align-self:center; margin-left:auto;
+  width:6px; height:6px; border-radius:50%; background:var(--diggs-ink);
+}
+/* Panel header with an explicit close control */
+.secnav-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin:0 8px 10px; padding-bottom:10px; border-bottom:1px solid var(--line);
+}
+.secnav-headlabel{
+  font-family:var(--font-body); font-weight:600; font-size:11px;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--diggs-taupe);
+}
+.secnav-close{
+  flex:none; display:flex; align-items:center; justify-content:center;
+  width:26px; height:26px; padding:0; border:1px solid var(--line); border-radius:2px;
+  background:transparent; color:var(--diggs-stone); font-size:18px; line-height:1; cursor:pointer;
+  transition:background .15s var(--ease-out), color .15s var(--ease-out), border-color .15s var(--ease-out);
+}
+.secnav-close:hover{background:var(--sage-soft); color:var(--diggs-ink); border-color:var(--line-warm);}
+.secnav-close:focus-visible{outline:2px solid var(--diggs-stone); outline-offset:2px;}
+@media (prefers-reduced-motion:reduce){
+  .secnav-panel{animation:none;}
+}
 
 /* Five-habits spine strip */
 .habits{background:var(--diggs-cream); border-bottom:1px solid var(--line-warm);}
@@ -242,9 +345,41 @@ a:hover .arrow{transform:translate(2px,-2px);}
 
 <div class="topbar">
   <img src="assets/logos/diggs-wordmark-black.png" alt="DIGGS">
+  <button class="topnav" aria-haspopup="true" aria-expanded="false" aria-controls="secnav">
+    <span class="topnav-num" aria-hidden="true"></span>
+    <span class="topnav-title">Jump to a section</span>
+    <span class="topnav-chevron" aria-hidden="true">&#9662;</span>
+  </button>
   <span class="tag">AI Team Handbook</span>
   <div class="progress" aria-hidden="true"><i id="prog"></i></div>
 </div>
+
+<nav id="secnav" hidden aria-label="Jump to a section">
+  <div class="secnav-panel" role="menu">
+    <div class="secnav-head">
+      <span class="secnav-headlabel">Jump to a section</span>
+      <button class="secnav-close" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="secnav-group">
+      <div class="secnav-grouplabel">Get great output</div>
+      <a href="#briefing" role="menuitem"><span class="n">01</span><span class="t">Give it a real briefing</span></a>
+      <a href="#chats" role="menuitem"><span class="n">02</span><span class="t">One chat per task. Start fresh, often.</span></a>
+      <a href="#reuse" role="menuitem"><span class="n">03</span><span class="t">Stop starting over: Projects, Skills &amp; Artifacts</span></a>
+      <a href="#models" role="menuitem"><span class="n">04</span><span class="t">Choosing a model without getting cut off</span></a>
+    </div>
+    <div class="secnav-group">
+      <div class="secnav-grouplabel">Know its limits</div>
+      <a href="#how-it-works" role="menuitem"><span class="n">05</span><span class="t">How it works, and why it's confidently wrong</span></a>
+      <a href="#verify" role="menuitem"><span class="n">06</span><span class="t">Make it look things up</span></a>
+      <a href="#right-work" role="menuitem"><span class="n">07</span><span class="t">What AI is good and bad at</span></a>
+    </div>
+    <div class="secnav-group">
+      <div class="secnav-grouplabel">Tools &amp; privacy</div>
+      <a href="#tools" role="menuitem"><span class="n">08</span><span class="t">Working inside your tools</span></a>
+      <a href="#privacy" role="menuitem"><span class="n">09</span><span class="t">Privacy &amp; security</span></a>
+    </div>
+  </div>
+</nav>
 
 <header class="hero">
   <div class="hero-photo" style="background-image:url('assets/imagery/groov-lifestyle.png')"></div>
@@ -312,7 +447,7 @@ a:hover .arrow{transform:translate(2px,-2px);}
         <pre id="tmpl">I am [role/context].
 I need to [goal].
 The audience is [audience].
-Use this context: [background/source material].
+Use this context: [background/source material, reference by name if file attachments].
 Constraints: [tone, length, facts to assume, things to avoid].
 Return the output as [format].</pre>
       </div>
@@ -339,11 +474,11 @@ Return the output as [format].</pre>
     <section class="block" id="chats">
       <span class="eyebrow">02 · Critical habit</span>
       <h2>One chat per task. Start fresh, often.</h2>
-      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>New task, new chat.</strong> Long chats get slow, burn your limit faster, and bury what matters.</span></p>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>New task, new chat.</strong> Long chats get slow, burn your limit faster, and and make the outputs worse.</span></p>
       <p class="lead">Running one endless chat for everything is the <strong>most common mistake I see people make</strong>, and it makes everything worse.</p>
       <p>Everything in a chat stays in its working memory: every message, every file you drop in. The longer a chat runs, the more crowded that memory gets, and three things happen at once. Responses slow down, you burn through your usage limit faster, and quality drops because the stuff that matters gets buried under everything that came before, or drifts out of view entirely.</p>
       <p>So when you switch to a different task, <strong>start a new chat.</strong> It's free, and it keeps answers fast and sharp. One chat for the launch email, a separate one for the returns SOP, another for the supplier thread.</p>
-      <div class="callout"><span class="k">"But I'll have to re-explain myself"</span>The thing people dread about fresh chats is re-explaining their context every single time. That is exactly what Projects solve, and it's the next section. You keep your instructions and files in one place, and every new chat in that Project already knows them.</div>
+      <div class="callout"><span class="k">"But I'll have to re-explain myself"</span>The common fear is re-explaining context every single time. That is exactly what Projects solve, and it's the next section. You keep your instructions and files in one place, and every new chat in that Project already knows them.</div>
     </section>
 
     <section class="block" id="reuse">
@@ -391,7 +526,7 @@ Return the output as [format].</pre>
         <li>Answer its questions. It asks about the steps, what to always or never do, and where it should pause for you.</li>
         <li>It hands back a working Skill. Save it under Settings &gt; Features and it's ready to use.</li>
       </ol>
-      <div class="callout"><span class="k">When a Skill earns its keep</span>Once you've done a task the same way more than a couple of times and you care that it comes out consistent, turn it into a Skill: a weekly reviews-into-themes summary in a set format, a PDP draft that always covers the same sections, a spreadsheet analysis with a consitent deliverable format. True one-offs stay in plain chat.</div>
+      <div class="callout"><span class="k">When a Skill earns its keep</span>Once you've done a task the same way more than a couple of times and you care that it comes out consistent, turn it into a Skill: a weekly reviews-into-themes summary in a set format, a PDP draft that always covers the same sections, a spreadsheet analysis with a consistent deliverable format. True one-offs stay in plain chat.</div>
 
       <h3 class="sub">Artifacts — keepable, editable outputs</h3>
       <p>An Artifact is a standalone output Claude builds beside the chat instead of burying it in text: a polished document, a table, a chart, a small calculator or tool. Ask for one when the output is something you'll keep, refine, or hand off, not just read once. A reusable shipping-cost calculator, a returns-policy one-pager, a bundle-pricing table. If you would otherwise copy the answer into a doc and keep working on it, an Artifact is the better home.</p>
@@ -596,16 +731,97 @@ document.querySelectorAll('.copybtn').forEach(function(btn){
   });
 });
 
-// Reading-progress bar
+// ============================================================
+// Sticky section headers + shared jump-nav dropdown
+// ============================================================
+(function(){
+  var menu = document.getElementById('secnav');
+  var trigger = document.querySelector('.topnav');
+  var closeBtn = menu.querySelector('.secnav-close');
+  var links = Array.prototype.slice.call(menu.querySelectorAll('a'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.block'));
+  var topnavNum = trigger.querySelector('.topnav-num');
+  var topnavTitle = trigger.querySelector('.topnav-title');
+
+  function openMenu(){
+    trigger.setAttribute('aria-expanded', 'true');
+    menu.hidden = false;
+    var active = menu.querySelector('a[aria-current="true"]') || links[0];
+    if(active){ active.focus(); }
+  }
+  function closeMenu(returnFocus){
+    if(menu.hidden) return;
+    menu.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    if(returnFocus){ trigger.focus(); }
+  }
+
+  trigger.addEventListener('click', function(e){
+    e.preventDefault();
+    if(!menu.hidden){ closeMenu(true); } else { openMenu(); }
+  });
+  if(closeBtn){ closeBtn.addEventListener('click', function(){ closeMenu(true); }); }
+
+  links.forEach(function(a){
+    a.addEventListener('click', function(){
+      // let the native hash + scroll-behavior:smooth handle the jump, then close
+      closeMenu(false);
+    });
+  });
+
+  // Close on Escape and on click/tap outside
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !menu.hidden){ closeMenu(true); }
+  });
+  document.addEventListener('click', function(e){
+    if(menu.hidden) return;
+    if(menu.contains(e.target)) return;
+    if(trigger.contains(e.target)) return;
+    closeMenu(false);
+  });
+
+  // Reflect the current section in the topbar label and the menu's active item.
+  // Current = the last section whose top has scrolled just under the topbar.
+  window.__secnavOnScroll = function(){
+    var activeLine = 70;
+    // null until the first section actually reaches the topbar; shows the placeholder until then
+    var current = null;
+    for(var i=0;i<sections.length;i++){
+      if(sections[i].getBoundingClientRect().top <= activeLine){ current = sections[i]; }
+    }
+    var id = current ? current.id : null;
+    var activeLink = null;
+    links.forEach(function(a){
+      if(a.getAttribute('href') === '#' + id){ a.setAttribute('aria-current','true'); activeLink = a; }
+      else { a.removeAttribute('aria-current'); }
+    });
+    if(activeLink){
+      topnavNum.textContent = activeLink.querySelector('.n').textContent;
+      topnavTitle.textContent = activeLink.querySelector('.t').textContent;
+    } else {
+      topnavNum.textContent = '';
+      topnavTitle.textContent = 'Jump to a section';
+    }
+  };
+})();
+
+// Reading-progress bar (extended to also mark the active nav section)
 var prog = document.getElementById('prog');
+var rafPending = false;
 function updateProgress(){
   var doc = document.documentElement;
   var max = doc.scrollHeight - doc.clientHeight;
   var pct = max > 0 ? (doc.scrollTop / max) * 100 : 0;
   prog.style.width = pct + '%';
+  if(window.__secnavOnScroll){ window.__secnavOnScroll(); }
 }
-window.addEventListener('scroll', updateProgress, { passive:true });
-window.addEventListener('resize', updateProgress);
+function onScroll(){
+  if(rafPending) return;
+  rafPending = true;
+  window.requestAnimationFrame(function(){ rafPending = false; updateProgress(); });
+}
+window.addEventListener('scroll', onScroll, { passive:true });
+window.addEventListener('resize', onScroll);
 updateProgress();
 </script>
 </body>
