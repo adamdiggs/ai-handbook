@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Use AI Effectively — DIGGS Team Handbook</title>
+<meta name="description" content="A practical guide for the DIGGS team on using AI well: how to brief it, keep chats clean, reuse setups, pick a model, and verify what matters.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+/* ============================================================
+   DIGGS — fonts (from the brand design system)
+   ============================================================ */
+@font-face { font-family:"Recta"; src:url("assets/fonts/Recta-Regular.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:"Recta"; src:url("assets/fonts/Recta-Medium.woff2") format("woff2"); font-weight:500; font-style:normal; font-display:swap; }
+@font-face { font-family:"Recta"; src:url("assets/fonts/Recta-Bold.woff2") format("woff2"); font-weight:700; font-style:normal; font-display:swap; }
+@font-face { font-family:"Duplet Open"; src:url("assets/fonts/DupletOpen-Light.woff2") format("woff2"); font-weight:300; font-style:normal; font-display:swap; }
+@font-face { font-family:"Duplet Open"; src:url("assets/fonts/DupletOpen-Regular.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:"Duplet Open"; src:url("assets/fonts/DupletOpen-Semibold.woff2") format("woff2"); font-weight:600; font-style:normal; font-display:swap; }
+@font-face { font-family:"Duplet Open"; src:url("assets/fonts/DupletOpen-Bold.woff2") format("woff2"); font-weight:700; font-style:normal; font-display:swap; }
+@font-face { font-family:"Duplet Open"; src:url("assets/fonts/DupletOpen-Extrabold.woff2") format("woff2"); font-weight:800; font-style:normal; font-display:swap; }
+
+/* ============================================================
+   DIGGS — tokens
+   ============================================================ */
+:root{
+  --diggs-paper:#fdfffd; --diggs-cream:#f4eee9; --diggs-sage:#c5ceba;
+  --diggs-stone:#64695e; --diggs-taupe:#6d635b; --diggs-graphite:#4c4a4e; --diggs-ink:#343633;
+  --line:color-mix(in srgb, var(--diggs-ink) 10%, transparent);
+  --line-warm:color-mix(in srgb, var(--diggs-ink) 16%, transparent);
+  --sage-soft:color-mix(in srgb, var(--diggs-sage) 35%, var(--diggs-paper));
+  --font-display:"Duplet Open","Arial Black",Tahoma,sans-serif;
+  --font-body:"Recta",Arial,Helvetica,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --shadow-sm:0 2px 8px rgba(52,54,51,.08);
+  --shadow-md:0 8px 24px rgba(52,54,51,.10);
+  --shadow-lg:0 16px 48px rgba(52,54,51,.14);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --container:1180px;
+  --sidebar:264px;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;}}
+body{
+  margin:0; background:var(--diggs-paper); color:var(--diggs-ink);
+  font-family:var(--font-body); font-size:16px; font-weight:400; line-height:1.6; letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+::selection{background:var(--diggs-sage); color:var(--diggs-ink);}
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:800; letter-spacing:-.02em; line-height:1.08; margin:0;}
+h2{font-size:clamp(28px,3.4vw,40px);}
+h3{font-size:22px; font-weight:700; letter-spacing:-.01em; line-height:1.15;}
+h4{font-size:17px; font-weight:700; letter-spacing:-.01em;}
+p{margin:0 0 16px;}
+a{color:var(--diggs-ink); text-decoration:none;}
+strong{font-weight:700;}
+em{font-style:normal; background:var(--sage-soft); padding:1px 4px; border-radius:2px;}
+.eyebrow{font-family:var(--font-body); font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:.18em; color:var(--diggs-taupe);}
+
+/* ============================================================
+   Top bar
+   ============================================================ */
+.topbar{
+  position:sticky; top:0; z-index:50; height:60px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px; background:color-mix(in srgb, var(--diggs-paper) 88%, transparent);
+  backdrop-filter:saturate(1.1) blur(8px); border-bottom:1px solid var(--line);
+}
+.topbar img{height:22px; display:block;}
+.topbar .tag{font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--diggs-taupe); font-weight:500;}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero{position:relative; overflow:hidden; background:var(--diggs-cream); border-bottom:1px solid var(--line-warm);}
+.hero-inner{max-width:var(--container); margin:0 auto; padding:88px 24px 72px; position:relative; z-index:2;}
+.hero .eyebrow{display:block; margin-bottom:20px;}
+.hero h1{font-size:clamp(40px,7vw,76px); font-weight:800; letter-spacing:-.03em; line-height:.98; max-width:16ch;}
+.hero p.lede{font-size:clamp(17px,2.1vw,21px); line-height:1.5; color:var(--diggs-graphite); max-width:60ch; margin-top:24px;}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px; margin-top:32px;}
+.chip{font-size:13px; font-weight:500; color:var(--diggs-ink); background:var(--diggs-paper); border:1px solid var(--line-warm); border-radius:2px; padding:7px 13px;}
+.hero-photo{position:absolute; inset:0; left:auto; width:46%; min-width:420px; background-size:cover; background-position:center; opacity:.9;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 38%); mask-image:linear-gradient(90deg,transparent,#000 38%);}
+@media (max-width:1080px){.hero-photo{display:none;}}
+
+/* ============================================================
+   Layout: centered reading column
+   ============================================================ */
+.shell{max-width:var(--container); margin:0 auto; padding:0 24px;}
+main{max-width:780px; margin:0 auto; padding:24px 0 96px; min-width:0;}
+
+/* Reading-progress bar, pinned to the bottom edge of the sticky top bar.
+   Replaces the old sidebar contents nav: a sense of place, none of the bulk. */
+.progress{position:absolute; left:0; right:0; bottom:-1px; height:2px; background:transparent; z-index:2;}
+.progress i{display:block; height:100%; width:0; background:var(--diggs-ink); transition:width .1s linear;}
+
+@media (max-width:880px){
+  main{padding-top:18px;}
+  .hero-inner{padding:56px 24px 48px;}
+}
+
+/* ============================================================
+   Sections
+   ============================================================ */
+section.block{padding:40px 0; border-top:1px solid var(--line); scroll-margin-top:80px;}
+section.block:first-of-type{border-top:none;}
+section.block > .eyebrow{display:block; margin-bottom:10px;}
+section.block h2{margin-bottom:18px; max-width:24ch;}
+.lead{font-size:18px; line-height:1.55; color:var(--diggs-graphite);}
+main p, main li{max-width:68ch;}
+ul.clean{list-style:none; padding:0; margin:0 0 16px;}
+ul.clean li{position:relative; padding-left:26px; margin-bottom:9px; line-height:1.5;}
+ul.clean li::before{content:""; position:absolute; left:4px; top:10px; width:7px; height:7px; border:1.5px solid var(--diggs-sage); border-top:none; border-right:none; transform:rotate(-45deg);}
+.muted{color:var(--diggs-stone);}
+h3.sub{margin:30px 0 12px;}
+
+/* Five-habits spine strip */
+.habits{background:var(--diggs-cream); border-bottom:1px solid var(--line-warm);}
+.habits-inner{max-width:var(--container); margin:0 auto; padding:38px 24px 42px;}
+.habits .eyebrow{display:block; margin-bottom:22px;}
+.habits-list{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(5,1fr); gap:26px;}
+@media (max-width:900px){.habits-list{grid-template-columns:repeat(2,1fr); gap:22px 30px;}}
+@media (max-width:540px){.habits-list{grid-template-columns:1fr; gap:16px;}}
+.habits-list li{display:flex; gap:13px; align-items:flex-start;}
+.habits-list .hn{font-family:var(--font-display); font-weight:800; font-size:24px; line-height:1; color:var(--diggs-sage); flex:none;}
+.habits-list .ht{font-size:13.5px; line-height:1.45; color:var(--diggs-graphite);}
+.habits-list .ht strong{display:block; color:var(--diggs-ink); font-weight:700; font-size:14px; margin-bottom:3px; letter-spacing:-.005em;}
+
+/* Part dividers */
+.part-divider{margin:72px 0 4px; padding-bottom:18px; border-bottom:1px solid var(--line);}
+.part-divider:first-child{margin-top:4px;}
+.part-divider + section.block{border-top:none;}
+.pd-eyebrow{display:flex; align-items:center; gap:10px; font-family:var(--font-body); font-weight:600; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--diggs-taupe);}
+.pd-eyebrow::before{content:""; width:24px; height:2px; background:var(--diggs-sage); flex:none;}
+.pd-title{font-family:var(--font-display); font-weight:800; font-size:clamp(26px,3.6vw,38px); letter-spacing:-.02em; line-height:1.04; margin:13px 0 0;}
+.pd-sub{color:var(--diggs-stone); font-size:15.5px; line-height:1.45; margin:9px 0 0; max-width:54ch;}
+
+/* Per-section takeaway */
+.takeaway{display:flex; gap:12px; align-items:baseline; margin:0 0 22px; padding:12px 16px; background:var(--sage-soft); border-left:2px solid var(--diggs-sage); border-radius:2px;}
+.takeaway .k{flex:none; font-family:var(--font-body); font-weight:600; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--diggs-stone); white-space:nowrap; transform:translateY(1px);}
+.takeaway .t{font-size:15px; line-height:1.45; color:var(--diggs-ink);}
+.takeaway .t strong{font-weight:700;}
+
+/* Callout */
+.callout{background:var(--sage-soft); border:1px solid color-mix(in srgb,var(--diggs-sage) 60%, transparent); border-radius:2px; padding:20px 22px; margin:22px 0; font-size:15.5px;}
+.callout strong{color:var(--diggs-ink);}
+.callout em{background:none; padding:0; font-weight:700;}
+.callout a{font-weight:700; border-bottom:1px solid color-mix(in srgb,var(--diggs-ink) 35%, transparent); transition:border-color .2s;}
+.callout a:hover{border-bottom-color:var(--diggs-ink);}
+.callout.ink{background:var(--diggs-ink); color:var(--diggs-paper); border-color:var(--diggs-ink);}
+.callout.ink strong{color:#fff;}
+.callout .k{display:block; font-family:var(--font-body); font-weight:500; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--diggs-taupe); margin-bottom:8px;}
+.callout.ink .k{color:var(--diggs-sage);}
+
+/* Tables */
+.table-wrap{overflow-x:auto; margin:20px 0; border:1px solid var(--line); border-radius:2px;}
+table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:560px;}
+th,td{text-align:left; padding:13px 16px; vertical-align:top; border-bottom:1px solid var(--line);}
+thead th{background:var(--diggs-cream); font-family:var(--font-body); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--diggs-taupe);}
+tbody tr:last-child td{border-bottom:none;}
+td strong{font-weight:700;}
+td.model{font-family:var(--font-display); font-weight:700; font-size:16px; white-space:nowrap;}
+tbody tr:hover{background:color-mix(in srgb,var(--diggs-cream) 45%, transparent);}
+
+/* Ordered grid: each item its own cell, so it reads in source order and
+   collapses to a single mobile column without scrambling. h4 carries its
+   own bottom margin so headings never hug their paragraph. */
+/* Two-up cards for paired concepts (Projects, Tools). Matches .pillar:
+   bordered, 2px corners, paper fill, a sage top rail for a touch of color. */
+.duo{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0;}
+@media (max-width:680px){.duo{grid-template-columns:1fr; gap:14px;}}
+.duo > div{border:1px solid var(--line); border-top:3px solid var(--diggs-sage); border-radius:2px; background:var(--diggs-paper); padding:18px 20px;}
+.duo h4{margin:0 0 8px;}
+.duo p{margin:0;}
+.duo a{font-weight:600; border-bottom:1px solid color-mix(in srgb,var(--diggs-ink) 35%, transparent); transition:border-color .2s;}
+.duo a:hover{border-bottom-color:var(--diggs-ink);}
+
+/* Prompt blocks */
+.prompt{position:relative; background:var(--diggs-cream); border:1px solid var(--line-warm); border-radius:2px; margin:14px 0 22px; overflow:hidden;}
+.prompt .ph{display:flex; align-items:center; justify-content:space-between; padding:11px 16px; border-bottom:1px solid var(--line-warm);}
+.prompt .ph .name{font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:-.01em;}
+.prompt pre{margin:0; padding:16px; font-family:var(--font-mono); font-size:13px; line-height:1.6; color:var(--diggs-graphite); white-space:pre-wrap; word-break:break-word;}
+.copybtn{font-family:var(--font-body); font-size:12px; font-weight:500; letter-spacing:.04em; cursor:pointer; background:var(--diggs-ink); color:var(--diggs-paper); border:none; border-radius:2px; padding:7px 14px; display:inline-flex; align-items:center; gap:7px; transition:background .2s;}
+.copybtn:hover{background:var(--diggs-graphite);}
+.copybtn.done{background:var(--diggs-stone);}
+.copybtn svg{width:13px; height:13px;}
+
+/* Mistake / Q-A rows */
+.row{border-top:1px solid var(--line); padding:18px 0;}
+.row:first-child{border-top:none;}
+.row .lbl{font-family:var(--font-display); font-weight:700; font-size:16px; margin-bottom:8px;}
+.swap{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:6px;}
+@media (max-width:680px){.swap{grid-template-columns:1fr;}}
+.swap .q{padding:12px 14px; border-radius:2px; font-size:14px; line-height:1.45;}
+.swap .weak{background:color-mix(in srgb,var(--diggs-taupe) 10%, var(--diggs-paper)); border:1px solid var(--line);}
+.swap .good{background:var(--sage-soft); border:1px solid color-mix(in srgb,var(--diggs-sage) 55%, transparent);}
+.swap .tagq{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.14em; margin-bottom:6px; font-weight:600;}
+.swap .weak .tagq{color:var(--diggs-taupe);}
+.swap .good .tagq{color:var(--diggs-stone);}
+
+/* Pillars (good / caution / avoid) */
+.pillars{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:22px 0;}
+@media (max-width:760px){.pillars{grid-template-columns:1fr;}}
+.pillar{border:1px solid var(--line); border-radius:2px; padding:20px; background:var(--diggs-paper);}
+.pillar h4{margin-bottom:12px;}
+.pillar ul{margin:0; padding:0; list-style:none; font-size:13.5px; line-height:1.5; color:var(--diggs-graphite);}
+.pillar li{padding:5px 0; border-top:1px solid var(--line);}
+.pillar li:first-child{border-top:none;}
+.pillar.good{border-top:3px solid var(--diggs-sage);}
+.pillar.caution{border-top:3px solid var(--diggs-taupe);}
+.pillar.avoid{border-top:3px solid var(--diggs-ink);}
+
+/* Steps */
+ol.steps{counter-reset:step; list-style:none; padding:0; margin:18px 0;}
+ol.steps li{counter-increment:step; position:relative; padding:4px 0 16px 46px; min-height:34px;}
+ol.steps li::before{content:counter(step); position:absolute; left:0; top:0; width:30px; height:30px; border-radius:50%; background:var(--diggs-ink); color:var(--diggs-paper); font-family:var(--font-display); font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center;}
+ol.steps li:not(:last-child)::after{content:""; position:absolute; left:14.5px; top:32px; bottom:4px; width:1px; background:var(--line);}
+/* Rich variant: each step is a heading + description (briefing, verify) rather
+   than a single line. Same badge and rail, so it reads as the recipe it is. */
+ol.steps.rich li{padding-bottom:22px;}
+ol.steps.rich li:last-child{padding-bottom:2px;}
+ol.steps.rich h4{margin:0 0 5px; padding-top:4px;}
+ol.steps.rich p{margin:0;}
+
+/* Footer */
+footer{background:var(--diggs-ink); color:var(--diggs-paper); margin-top:0;}
+.footer-inner{max-width:var(--container); margin:0 auto; padding:56px 24px;}
+.footer-inner img{height:24px; margin-bottom:20px;}
+.footer-inner h3{font-family:var(--font-display); font-weight:800; font-size:clamp(22px,3vw,30px); letter-spacing:-.02em; max-width:22ch; color:#fff;}
+.footer-inner p{color:color-mix(in srgb,var(--diggs-paper) 72%, transparent); max-width:60ch; margin-top:14px;}
+.footer-meta{margin-top:32px; padding-top:20px; border-top:1px solid color-mix(in srgb,#fff 16%, transparent); font-size:12.5px; color:color-mix(in srgb,var(--diggs-paper) 55%, transparent); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+
+.arrow{display:inline-block; transition:transform .2s var(--ease-out);}
+a:hover .arrow{transform:translate(2px,-2px);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="assets/logos/diggs-wordmark-black.png" alt="DIGGS">
+  <span class="tag">AI Team Handbook</span>
+  <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+</div>
+
+<header class="hero">
+  <div class="hero-photo" style="background-image:url('assets/imagery/groov-lifestyle.png')"></div>
+  <div class="hero-inner">
+    <span class="eyebrow">DIGGS · Team Training</span>
+    <h1>How to use AI effectively.</h1>
+    <p class="lede">A practical guide for the DIGGS team on getting real work done with Claude. How to brief it, how to keep your chats fast and sharp, how to reuse your setup, and how to pick the right model without getting cut off. No jargon, just what makes you faster.</p>
+    <div class="hero-meta">
+      <span class="chip">~15 min read</span>
+      <span class="chip">Built for our Claude Team account</span>
+      <span class="chip">Questions → Adam</span>
+    </div>
+  </div>
+</header>
+
+<section class="habits" aria-label="The whole handbook in five habits">
+  <div class="habits-inner">
+    <span class="eyebrow">The whole handbook in five habits</span>
+    <ol class="habits-list">
+      <li><span class="hn">1</span><span class="ht"><strong>Brief it like a new teammate.</strong>Context beats clever wording.</span></li>
+      <li><span class="hn">2</span><span class="ht"><strong>One chat per task.</strong>Start fresh often. It's free.</span></li>
+      <li><span class="hn">3</span><span class="ht"><strong>Save your setup as a Project.</strong>Stop re-explaining yourself. Invest in your productivity.</span></li>
+      <li><span class="hn">4</span><span class="ht"><strong>Use the lightest model that works.</strong>Default Sonnet, not Opus. Avoid Fable.</span></li>
+      <li><span class="hn">5</span><span class="ht"><strong>Verify anything recent or specific.</strong>It doesn't know any facts that have changed since 2025.</span></li>
+    </ol>
+  </div>
+</section>
+
+<div class="shell">
+
+  <main>
+
+    <div class="part-divider">
+      <span class="pd-eyebrow">Part 1 of 3</span>
+      <h2 class="pd-title">Get great output</h2>
+      <p class="pd-sub">The four habits that decide whether AI saves you time or wastes it: how you brief it, how you manage chats, how you reuse your setup, and which model you pick.</p>
+    </div>
+
+    <section class="block" id="briefing">
+      <span class="eyebrow">01 · The core skill</span>
+      <h2>Give it a real briefing</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Context is the whole game.</strong> Tell it who you are, what you want back, and what to work from.</span></p>
+      <p class="lead">What separates people who get great results from people who don't is context, not clever wording. Brief the AI like you'd brief a sharp new teammate and it gets a lot better.</p>
+      <p>A strong request usually has four parts. You don't need all four every time, but when the output is weak, a missing part is almost always why.</p>
+      <ol class="steps rich">
+        <li>
+          <h4>Role &amp; situation</h4>
+          <p class="muted">Give the relevant context. "I handle CX for DIGGS and I'm replying to a customer whose crate arrived with a damaged door."</p>
+        </li>
+        <li>
+          <h4>What you want back</h4>
+          <p class="muted">Say it plainly. "Draft a warm, apologetic reply that offers a replacement and explains next steps."</p>
+        </li>
+        <li>
+          <h4>Context &amp; constraints</h4>
+          <p class="muted">Source material, audience, tone, length, things to avoid. "Under 120 words. Warm and premium. Don't promise a delivery date. Here's their message: …"</p>
+        </li>
+        <li>
+          <h4>Format</h4>
+          <p class="muted">Specify the shape. "Give me the email body only, ready to send."</p>
+        </li>
+      </ol>
+      <div class="prompt">
+        <div class="ph"><span class="name">The all-purpose template</span><button class="copybtn" data-copy="#tmpl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><rect x="9" y="9" width="11" height="11"></rect><path d="M5 15V5a1 1 0 0 1 1-1h10"></path></svg><span>Copy</span></button></div>
+        <pre id="tmpl">I am [role/context].
+I need to [goal].
+The audience is [audience].
+Use this context: [background/source material].
+Constraints: [tone, length, facts to assume, things to avoid].
+Return the output as [format].</pre>
+      </div>
+      <div class="callout"><span class="k">Tip: You don't have to do this every time</span>Once you do a kind of task more than once, a <a href="#reuse">Project or Skill</a> can hold the briefing for you so you never rewrite it.</div>
+
+      <h3 class="sub">Where people go wrong</h3>
+      <div class="row">
+        <div class="lbl">Being too vague</div>
+        <div class="swap">
+          <div class="q weak"><span class="tagq">Weak</span>Help me write an email.</div>
+          <div class="q good"><span class="tagq">Better</span>Write a follow-up to a 3PL contact who missed yesterday's outbound deadline. Professional, firm, under 120 words. Ask for a new ship time and what they're doing to prevent it.</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="lbl">Expecting the first answer to be final</div>
+        <p class="muted">AI works through iteration. Push back: "make it shorter," "less formal," "turn this into a table," "focus more on the risks," "rewrite for a non-technical reader."</p>
+      </div>
+      <div class="row">
+        <div class="lbl">Not giving it the source material</div>
+        <p class="muted">Want a summary of a Triple Whale export or a batch of reviews? Paste or upload them. It can only work with what you actually put in front of it.</p>
+      </div>
+    </section>
+
+    <section class="block" id="chats">
+      <span class="eyebrow">02 · Critical habit</span>
+      <h2>One chat per task. Start fresh, often.</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>New task, new chat.</strong> Long chats get slow, burn your limit faster, and bury what matters.</span></p>
+      <p class="lead">Running one endless chat for everything is the <strong>most common mistake I see people make</strong>, and it makes everything worse.</p>
+      <p>Everything in a chat stays in its working memory: every message, every file you drop in. The longer a chat runs, the more crowded that memory gets, and three things happen at once. Responses slow down, you burn through your usage limit faster, and quality drops because the stuff that matters gets buried under everything that came before, or drifts out of view entirely.</p>
+      <p>So when you switch to a different task, <strong>start a new chat.</strong> It's free, and it keeps answers fast and sharp. One chat for the launch email, a separate one for the returns SOP, another for the supplier thread.</p>
+      <div class="callout"><span class="k">"But I'll have to re-explain myself"</span>The thing people dread about fresh chats is re-explaining their context every single time. That is exactly what Projects solve, and it's the next section. You keep your instructions and files in one place, and every new chat in that Project already knows them.</div>
+    </section>
+
+    <section class="block" id="reuse">
+      <span class="eyebrow">03 · The biggest unlock</span>
+      <h2>Stop starting over: Projects, Skills &amp; Artifacts</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Do anything twice? Make a Project or Skill.</strong> They hold your context and processes so every new chat already is fully briefed.</span></p>
+      <p class="lead">These are the features that change how much you get out of Claude. The moment you do the same kind of work twice, stop rebuilding context from scratch.</p>
+
+      <h3 class="sub">Projects — your reusable context</h3>
+      <p>A Project is a persistent workspace for a recurring area of work. Claude remembers the same instructions and reference files across every chat inside it. This is what lets you start fresh chats fearlessly: your setup lives in the Project, not in any single conversation.</p>
+      <div class="duo">
+        <div>
+          <h4>Custom instructions</h4>
+          <p class="muted">Standing guidance Claude reads at the start of every chat in the Project: your role, goals, tone rules, always and never. About 8,000 characters.</p>
+        </div>
+        <div>
+          <h4>Project knowledge</h4>
+          <p class="muted">Files you upload once and Claude references everywhere in the Project. Holds a lot; past that it automatically switches to retrieval so it can still pull from a big library.</p>
+        </div>
+        <div>
+          <h4>Team sharing</h4>
+          <p class="muted">Share a Project across the org and set each teammate to Can use or Can edit. How the whole team gets consistent, on-brand output without everyone briefing Claude from scratch.</p>
+        </div>
+        <div>
+          <h4>Live Google Drive files</h4>
+          <p class="muted">Add a Google Doc straight from Drive instead of uploading a copy, so Claude always reads the current version. Edit it in Drive and the Project updates itself. Private projects, text only. <a href="#tools">More in Connectors ↓</a></p>
+        </div>
+      </div>
+      <p><strong>Create one:</strong></p>
+      <ol class="steps">
+        <li>Go to claude.ai and click <strong>Projects</strong> in the left sidebar.</li>
+        <li>Click <strong>+ New Project</strong>, then name it and add a short description.</li>
+        <li>On our Team plan, choose private or shared with the organization.</li>
+        <li>Click <strong>Set project instructions</strong> and add your standing guidance.</li>
+        <li>Upload reference files to the <strong>project knowledge</strong> panel on the right.</li>
+      </ol>
+
+      <h3 class="sub">Skills — reusable procedures</h3>
+      <p>A Skill packages a repeatable procedure so Claude does a type of task the same way every time. Where a Project supplies <em>context</em> (who you are, what to reference), a Skill supplies a <em>method</em> (the steps to follow). Claude has pre-built Skills for making PowerPoint, Excel, Word, and PDF files, and you can build your own.</p>
+
+      <p><strong>You don't write a Skill by hand.</strong> You have Claude write it for you with the <em>skill creator</em>, a built-in Skill that interviews you and produces the finished Skill itself. Works the same on claude.ai and the desktop app.</p>
+      <ol class="steps">
+        <li>In a new chat, ask Claude to create a skill (or pick the skill creator from the Skills list).</li>
+        <li>Describe the task in plain language: "Draft a reply to a customer review in our voice, following our refund and escalation rules."</li>
+        <li>Answer its questions. It asks about the steps, what to always or never do, and where it should pause for you.</li>
+        <li>It hands back a working Skill. Save it under Settings &gt; Features and it's ready to use.</li>
+      </ol>
+      <div class="callout"><span class="k">When a Skill earns its keep</span>Once you've done a task the same way more than a couple of times and you care that it comes out consistent, turn it into a Skill: a weekly reviews-into-themes summary in a set format, a PDP draft that always covers the same sections, a spreadsheet analysis with a consitent deliverable format. True one-offs stay in plain chat.</div>
+
+      <h3 class="sub">Artifacts — keepable, editable outputs</h3>
+      <p>An Artifact is a standalone output Claude builds beside the chat instead of burying it in text: a polished document, a table, a chart, a small calculator or tool. Ask for one when the output is something you'll keep, refine, or hand off, not just read once. A reusable shipping-cost calculator, a returns-policy one-pager, a bundle-pricing table. If you would otherwise copy the answer into a doc and keep working on it, an Artifact is the better home.</p>
+
+      <h4 class="sub">So which do I use?</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>You want to…</th><th>Use</th></tr></thead>
+          <tbody>
+            <tr><td>Ask a one-off question or do a quick task</td><td><strong>Plain chat</strong></td></tr>
+            <tr><td>Reuse the same context, files, and standards across many chats</td><td><strong>Project</strong></td></tr>
+            <tr><td>Make Claude follow the same steps the same way every time</td><td><strong>Skill</strong></td></tr>
+            <tr><td>Produce a keepable, editable output (doc, tool, table)</td><td><strong>Artifact</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">They combine. A shared Project holds your context, a Skill standardizes a procedure inside it, and the result comes out as an Artifact.</p>
+    </section>
+
+    <section class="block" id="models">
+      <span class="eyebrow">04 · Tools</span>
+      <h2>Choosing a model without getting cut off</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Default to Sonnet.</strong> Save Opus for genuinely hard problems, and touch Fable almost never.</span></p>
+      <p class="lead">On our Team account you pick the model from a dropdown at the top of the chat. The one thing to understand: capability and cost rise together. The smarter the model, the faster it eats your usage limit.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Model</th><th>Best for</th><th>On our plan</th></tr></thead>
+          <tbody>
+            <tr><td class="model">Haiku</td><td>Fast, simple, high-volume tasks</td><td>Run it freely.</td></tr>
+            <tr><td class="model">Sonnet</td><td>Everyday work. The default for almost everything.</td><td>Run it freely, you won't realistically hit limits.</td></tr>
+            <tr><td class="model">Opus</td><td>Genuinely hard reasoning, large or complex analysis</td><td>Use deliberately. Lean on it for routine work and you can get cut off.</td></tr>
+            <tr><td class="model">Fable</td><td>The most capable model that exists</td><td>Extremely expensive. Expect roughly one query per session before it's spent.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout ink"><span class="k">The rule</span>Default to <strong>Sonnet</strong>. Step up to <strong>Opus</strong> only when something is genuinely hard. Touch <strong>Fable</strong> almost never, and only for a single high-value question, never for drafting. When in doubt, go one model down: a fresh, well-briefed Sonnet chat beats a bloated Opus one almost every time.</div>
+    </section>
+
+    <div class="part-divider">
+      <span class="pd-eyebrow">Part 2 of 3</span>
+      <h2 class="pd-title">Know its limits</h2>
+      <p class="pd-sub">Why a tool this good still gets things confidently wrong, what to never take on faith, and where it genuinely shines versus where it falls down.</p>
+    </div>
+
+    <section class="block" id="how-it-works">
+      <span class="eyebrow">05 · Foundation</span>
+      <h2>How it works, and why it's confidently wrong</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>It predicts plausible text, it doesn't look things up.</strong> That's why it can sound certain and be wrong.</span></p>
+      <p>A language model generates text one small piece at a time, predicting what's likely to come next based on everything it has seen. That one fact explains both its strengths and its biggest flaw. It's great at drafting, summarizing, and restructuring, and it can state something completely false with total confidence, because it's producing plausible text, not looking facts up.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>How it goes wrong</th><th>What it looks like</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Factual fabrication</strong></td><td>Wrong dates, names, specs, or claims</td></tr>
+            <tr><td><strong>Fake citations</strong></td><td>Links or sources that don't exist or don't support the claim</td></tr>
+            <tr><td><strong>Logical inconsistency</strong></td><td>The answer contradicts itself across sections</td></tr>
+            <tr><td><strong>False confidence</strong></td><td>It sounds certain even when it's wrong</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><span class="k">Bottom line</span>It's a powerful drafting and reasoning tool that still needs a human check. Sounding sure is not the same as being right.</div>
+    </section>
+
+    <section class="block" id="verify">
+      <span class="eyebrow">06 · Foundation</span>
+      <h2>Make it look things up</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Recent, high-stakes, or specific? Verify it.</strong> Make it cite a source or search the web rather than trusting its memory.</span></p>
+      <p class="lead">There are two kinds of facts you should never take on faith.</p>
+      <ol class="steps rich">
+        <li>
+          <h4>Anything that may have changed</h4>
+          <p class="muted">Its knowledge is frozen from training, a year or more ago. Prices, product specs, who holds what role, current events, what a tool can do today. For anything time-sensitive, tell it to search the web or give it the current source.</p>
+        </li>
+        <li>
+          <h4>Anything highly specific or high-stakes</h4>
+          <p class="muted">Laws, regulations, tax rules, compliance, exact policy language. Make it cite a source you can actually check, rather than trusting its memory.</p>
+        </li>
+      </ol>
+      <p>The practical rule: trust it for structure and acceleration, not unsupervised facts. If something is recent or highly specific, verify it or feed it the source.</p>
+    </section>
+
+    <section class="block" id="right-work">
+      <span class="eyebrow">07 · Judgment</span>
+      <h2>What AI is good and bad at</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Great with words, shaky with facts.</strong> Lean on it for language and synthesis, double-check anything with real cost.</span></p>
+      <p>It's strongest when the task involves language, structure, synthesis, or pattern recognition.</p>
+      <div class="pillars">
+        <div class="pillar good">
+          <h4>Great uses</h4>
+          <ul>
+            <li>Drafting emails, memos, SOPs</li>
+            <li>Summarizing long threads</li>
+            <li>Reviews and NPS into themes</li>
+            <li>Brainstorming angles and bundles</li>
+            <li>Comparing two quotes or directions</li>
+            <li>One story into email, SMS, and ads</li>
+          </ul>
+        </div>
+        <div class="pillar caution">
+          <h4>Use caution</h4>
+          <ul>
+            <li>Legal, financial, compliance claims</li>
+            <li>Facts that change frequently</li>
+            <li>Anything needing exact citations</li>
+            <li>Numbers that drive money or inventory</li>
+            <li>Decisions with real cost if wrong</li>
+          </ul>
+        </div>
+        <div class="pillar avoid">
+          <h4>Avoid</h4>
+          <ul>
+            <li>Letting it take irreversible actions unreviewed</li>
+            <li>Blindly publishing or sending output</li>
+            <li>Treating a first draft as final truth</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="part-divider">
+      <span class="pd-eyebrow">Part 3 of 3</span>
+      <h2 class="pd-title">Tools &amp; privacy</h2>
+      <p class="pd-sub">Letting AI work inside your browser and apps, and keeping our data and accounts safe while you do it.</p>
+    </div>
+
+    <section class="block" id="tools">
+      <span class="eyebrow">08 · Tools</span>
+      <h2>Working inside your tools</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Let Claude reach into your tools (browser, Drive, email) for grunt work, with a hand on the wheel.</strong> Keep it out of admin, payments, and anything irreversible.</span></p>
+      <p>There are two ways to use claude on the web, and they suit different work.</p>
+      <div class="duo">
+        <div>
+          <h4>Switch-to-AI</h4>
+          <p class="muted">Open a chat, paste your context, copy the result back into your work. Best for occasional tasks, drafting, and brainstorming.</p>
+        </div>
+        <div>
+          <h4>Work-with-AI</h4>
+          <p class="muted">The AI operates inside your browser, docs, or email and sees what you're working on, no endless copy-paste. Best for repetitive, multi-step work.</p>
+        </div>
+      </div>
+      <h3 class="sub">Claude in Chrome</h3>
+      <p>Claude in Chrome is a browser agent. It can read pages, navigate sites, click, fill forms, manage tabs, and pull data, all from plain instructions. Use it when the task needs you to actually see or touch web pages.</p>
+      <div class="prompt">
+        <div class="ph"><span class="name">Example: scrape competitor specs</span></div>
+        <pre>Go through these competitor crate listings open in my tabs, and pull product name, price, dimensions, and weight capacity into a table.</pre>
+      </div>
+      <div class="callout ink"><span class="k">Safe use</span>Start with reading and summarizing. Use trusted sites. Review actions before they run. <strong>Never</strong> use it for transactions, passwords, or anything irreversible, and don't let it into Shopify admin, payment, or fulfillment systems. Web pages can carry hidden instructions (prompt injection), so keep a hand on the wheel.</div>
+
+      <h3 class="sub">Connectors</h3>
+      <p>Connectors plug Claude into the apps we already use, so it can pull from them right inside a chat instead of you copy-pasting. First-party connectors on our Team plan cover <strong>Google Drive, Gmail, Google Calendar, GitHub, Microsoft 365, and Slack</strong>. Once connected, Claude can search them and act in them, only when you ask: "find the supplier contract in my Drive and summarize the payment terms," or "pull this week's calendar and draft an agenda." They work in any chat, in a Project or not.</p>
+      <p><strong>Turning them on is two steps:</strong></p>
+      <ol class="steps">
+        <li>An account <strong>Owner</strong> switches connectors on for the whole org (that's Adam for us). Until that happens, nobody sees them.</li>
+        <li>Then each person connects their own account under <strong>Settings → Connectors</strong>, or the <strong>+</strong> in a chat. Claude only ever sees the account you personally connect.</li>
+      </ol>
+      <div class="callout"><span class="k">What it can and can't reach</span>Connecting Google Drive doesn't hand Claude your whole Drive. It reads only what you ask for, only when you ask, and inside a Project, only the files you add. Admins can allow reading while blocking writes and deletes across the org, and Anthropic does not train on connector data. Same rule as everywhere else: let it read and draft freely, keep a human on anything it sends or changes.</div>
+    </section>
+
+    <section class="block" id="privacy">
+      <span class="eyebrow">09 · Guardrails</span>
+      <h2>Privacy &amp; security</h2>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>The Team account is the safe place to work.</strong> Never paste credentials, and when something feels sensitive, ask first.</span></p>
+      <p>Our Claude Team account is the approved place to do this work. On commercial Team plans, Anthropic does not train its models on your conversations by default, which is a big reason we chose it over people using random personal AI tools. For the most part, using Claude here for everyday DIGGS work is safe.</p>
+      <p>Still, use judgment. Before pasting, ask:</p>
+      <ul class="clean">
+        <li>Is this a password, secret, token, or credential? (Never paste these anywhere.)</li>
+        <li>Is this legally or financially sensitive in a way that needs special handling?</li>
+        <li>Would it be a problem if this ended up outside the company?</li>
+      </ul>
+      <div class="callout"><span class="k">Coming soon</span>Detailed data-classification guidance (exactly which customer and business data is cleared for which uses) is coming from Adam. Until then: do the obvious-safe work freely, keep credentials out entirely, and if you're unsure whether something sensitive belongs in a prompt, ask first.</div>
+      <p class="muted">And regardless of the tool: never let AI take an irreversible action (sending, publishing, refunding, moving inventory) without a human reviewing it first.</p>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <img src="assets/logos/diggs-wordmark-white.png" alt="DIGGS">
+    <h3>The core skill isn't memorizing prompts.</h3>
+    <p>It's a handful of habits: brief it well, keep one chat per task, save your setup as a Project, reach for the lightest model that does the job, and verify anything recent or specific. Do that and Claude stops being a novelty and starts being leverage.</p>
+    <div class="footer-meta">
+      <span>DIGGS · AI Team Handbook</span>
+      <span>Questions, stuck prompts, or workflow ideas → Adam</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Copy-to-clipboard
+document.querySelectorAll('.copybtn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var target = document.querySelector(btn.getAttribute('data-copy'));
+    if(!target) return;
+    navigator.clipboard.writeText(target.textContent).then(function(){
+      var label = btn.querySelector('span');
+      var prev = label.textContent;
+      label.textContent = 'Copied';
+      btn.classList.add('done');
+      setTimeout(function(){ label.textContent = prev; btn.classList.remove('done'); }, 1600);
+    });
+  });
+});
+
+// Reading-progress bar
+var prog = document.getElementById('prog');
+function updateProgress(){
+  var doc = document.documentElement;
+  var max = doc.scrollHeight - doc.clientHeight;
+  var pct = max > 0 ? (doc.scrollTop / max) * 100 : 0;
+  prog.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateProgress, { passive:true });
+window.addEventListener('resize', updateProgress);
+updateProgress();
+</script>
+</body>
+</html>
