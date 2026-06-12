@@ -93,12 +93,6 @@ em{font-style:normal; background:var(--sage-soft); padding:1px 4px; border-radiu
 .shell{max-width:var(--container); margin:0 auto; padding:0 24px;}
 main{max-width:68ch; margin:0 auto; padding:24px 0 96px; min-width:0;}
 
-/* Wide track: dense multi-column blocks (the pillars, the model table) sit on
-   a wider centered measure while prose keeps the 68ch column. Symmetric
-   negative margins, so nothing reads off-center; below 880px the normal
-   column is already near full width and the breakout switches off. */
-@media (min-width:880px){ .breakout{margin-inline:calc((100% - 84ch)/2);} }
-
 /* Reading-progress bar, pinned to the bottom edge of the sticky top bar.
    Replaces the old sidebar contents nav: a sense of place, none of the bulk. */
 .progress{position:absolute; left:0; right:0; bottom:-1px; height:2px; background:transparent; z-index:2;}
@@ -359,6 +353,14 @@ footer{background:var(--diggs-ink); color:var(--diggs-paper); margin-top:0;}
 
 .arrow{display:inline-block; transition:transform .2s var(--ease-out);}
 a:hover .arrow{transform:translate(2px,-2px);}
+
+/* Wide track: dense multi-column blocks (the pillars, the model table) sit on
+   a wider centered measure while prose keeps the 68ch column. Symmetric
+   negative margins, so nothing reads off-center; below 880px the normal
+   column is already near full width and the breakout switches off.
+   Lives at the end of the sheet so it wins the source-order tie against the
+   components' own margin shorthands (.pillars, .table-wrap). */
+@media (min-width:880px){ .breakout{margin-inline:calc((100% - 84ch)/2);} }
 </style>
 </head>
 <body>
