@@ -354,13 +354,15 @@ footer{background:var(--diggs-ink); color:var(--diggs-paper); margin-top:0;}
 .arrow{display:inline-block; transition:transform .2s var(--ease-out);}
 a:hover .arrow{transform:translate(2px,-2px);}
 
-/* Wide track: dense multi-column blocks (the pillars, the model table) sit on
-   a wider centered measure while prose keeps the 68ch column. Symmetric
-   negative margins, so nothing reads off-center; below 880px the normal
-   column is already near full width and the breakout switches off.
-   Lives at the end of the sheet so it wins the source-order tie against the
-   components' own margin shorthands (.pillars, .table-wrap). */
-@media (min-width:880px){ .breakout{margin-inline:calc((100% - 84ch)/2);} }
+/* Two-track layout: prose, callouts, and steps sit on the 68ch reading
+   column; every columnar block (card grids, comparisons, the trio, pillars,
+   tables) sits on one wider 84ch track, centered symmetrically so nothing
+   reads off-center. Desktop only; below 880px the column is already near
+   full width. Lives at the end of the sheet so it wins the source-order tie
+   against the components' own margin shorthands. */
+@media (min-width:880px){
+  .duo, .swap, .trio, .pillars, .table-wrap{margin-inline:calc((100% - 84ch)/2);}
+}
 </style>
 </head>
 <body>
@@ -593,7 +595,7 @@ Return the output as [format].</pre>
       <h2>Choosing a model without getting cut off</h2>
       <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Default to Sonnet.</strong> Save Opus for genuinely hard problems, and touch Fable almost never.</span></p>
       <p class="lead">On our Team account you pick the model from a dropdown at the top of the chat. The one thing to understand: capability and cost rise together. The smarter the model, the faster it eats your usage limit.</p>
-      <div class="table-wrap wide breakout">
+      <div class="table-wrap wide">
         <table>
           <thead><tr><th>Model</th><th>Best for</th><th>On our plan</th></tr></thead>
           <tbody>
@@ -655,7 +657,7 @@ Return the output as [format].</pre>
       <h2>What AI is good and bad at</h2>
       <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Great with words, shaky with facts.</strong> Lean on it for language and synthesis, double-check anything with real cost.</span></p>
       <p>It's strongest when the task involves language, structure, synthesis, or pattern recognition.</p>
-      <div class="pillars breakout">
+      <div class="pillars">
         <div class="pillar good">
           <h4>Great uses</h4>
           <ul>
