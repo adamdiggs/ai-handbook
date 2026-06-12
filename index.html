@@ -93,6 +93,12 @@ em{font-style:normal; background:var(--sage-soft); padding:1px 4px; border-radiu
 .shell{max-width:var(--container); margin:0 auto; padding:0 24px;}
 main{max-width:68ch; margin:0 auto; padding:24px 0 96px; min-width:0;}
 
+/* Wide track: dense multi-column blocks (the pillars, the model table) sit on
+   a wider centered measure while prose keeps the 68ch column. Symmetric
+   negative margins, so nothing reads off-center; below 880px the normal
+   column is already near full width and the breakout switches off. */
+@media (min-width:880px){ .breakout{margin-inline:calc((100% - 84ch)/2);} }
+
 /* Reading-progress bar, pinned to the bottom edge of the sticky top bar.
    Replaces the old sidebar contents nav: a sense of place, none of the bulk. */
 .progress{position:absolute; left:0; right:0; bottom:-1px; height:2px; background:transparent; z-index:2;}
@@ -261,7 +267,10 @@ h3.sub{margin:30px 0 12px;}
 
 /* Tables */
 .table-wrap{overflow-x:auto; margin:20px 0; border:1px solid var(--line); border-radius:2px;}
-table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:560px;}
+table{border-collapse:collapse; width:100%; font-size:14.5px;}
+/* Only tables with several prose columns need a scroll guard on phones;
+   simple two-column tables shrink to fit instead of side-scrolling. */
+.table-wrap.wide table{min-width:560px;}
 th,td{text-align:left; padding:13px 16px; vertical-align:top; border-bottom:1px solid var(--line);}
 thead th{background:var(--diggs-cream); font-family:var(--font-body); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--diggs-taupe);}
 tbody tr:last-child td{border-bottom:none;}
@@ -281,6 +290,15 @@ tbody tr:hover{background:color-mix(in srgb,var(--diggs-cream) 45%, transparent)
 .duo p{margin:0;}
 .duo a{font-weight:600; border-bottom:1px solid color-mix(in srgb,var(--diggs-ink) 35%, transparent); transition:border-color .2s;}
 .duo a:hover{border-bottom-color:var(--diggs-ink);}
+
+/* Orientation trio: a one-glance frame for Projects vs Skills vs Artifacts
+   before the detail. Lighter than .duo on purpose; it's a legend, not cards. */
+.trio{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:20px 0 8px;}
+@media (max-width:680px){.trio{grid-template-columns:1fr; gap:14px;}}
+.trio > div{border-top:2px solid var(--diggs-sage); padding-top:12px;}
+.trio h4{margin:0 0 5px;}
+.trio p{margin:0; font-size:14px; line-height:1.5; color:var(--diggs-graphite);}
+.trio p strong{color:var(--diggs-ink);}
 
 /* Prompt blocks */
 .prompt{position:relative; background:var(--diggs-cream); border:1px solid var(--line-warm); border-radius:2px; margin:14px 0 22px; overflow:hidden;}
@@ -331,7 +349,9 @@ ol.steps.rich p{margin:0;}
 
 /* Footer */
 footer{background:var(--diggs-ink); color:var(--diggs-paper); margin-top:0;}
-.footer-inner{max-width:var(--container); margin:0 auto; padding:56px 24px;}
+/* Footer content sits on the same reading column as the body, so the page
+   ends on the measure it was read on instead of pinning hard left. */
+.footer-inner{max-width:68ch; margin:0 auto; padding:56px 24px;}
 .footer-inner img{height:24px; margin-bottom:20px;}
 .footer-inner h3{font-family:var(--font-display); font-weight:800; font-size:clamp(22px,3vw,30px); letter-spacing:-.02em; max-width:22ch; color:#fff;}
 .footer-inner p{color:color-mix(in srgb,var(--diggs-paper) 72%, transparent); max-width:60ch; margin-top:14px;}
@@ -474,9 +494,14 @@ Return the output as [format].</pre>
     <section class="block" id="chats">
       <span class="eyebrow">02 · Critical habit</span>
       <h2>One chat per task. Start fresh, often.</h2>
-      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>New task, new chat.</strong> Long chats get slow, burn your limit faster, and and make the outputs worse.</span></p>
+      <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>New task, new chat.</strong> Long chats get slow, burn your limit faster, and make the outputs worse.</span></p>
       <p class="lead">Running one endless chat for everything is the <strong>most common mistake I see people make</strong>, and it makes everything worse.</p>
-      <p>Everything in a chat stays in its working memory: every message, every file you drop in. The longer a chat runs, the more crowded that memory gets, and three things happen at once. Responses slow down, you burn through your usage limit faster, and quality drops because the stuff that matters gets buried under everything that came before, or drifts out of view entirely.</p>
+      <p>Everything in a chat stays in its working memory: every message, every file you drop in. The longer a chat runs, the more crowded that memory gets, and three things happen at once:</p>
+      <ul class="clean">
+        <li>Responses slow down.</li>
+        <li>You burn through your usage limit faster.</li>
+        <li>Quality drops: the stuff that matters gets buried under everything that came before, or drifts out of view entirely.</li>
+      </ul>
       <p>So when you switch to a different task, <strong>start a new chat.</strong> It's free, and it keeps answers fast and sharp. One chat for the launch email, a separate one for the returns SOP, another for the supplier thread.</p>
       <div class="callout"><span class="k">"But I'll have to re-explain myself"</span>The common fear is re-explaining context every single time. That is exactly what Projects solve, and it's the next section. You keep your instructions and files in one place, and every new chat in that Project already knows them.</div>
     </section>
@@ -486,6 +511,20 @@ Return the output as [format].</pre>
       <h2>Stop starting over: Projects, Skills &amp; Artifacts</h2>
       <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Do anything twice? Make a Project or Skill.</strong> They hold your context and processes so every new chat already is fully briefed.</span></p>
       <p class="lead">These are the features that change how much you get out of Claude. The moment you do the same kind of work twice, stop rebuilding context from scratch.</p>
+      <div class="trio" aria-label="The three features at a glance">
+        <div>
+          <h4>Project</h4>
+          <p><strong>Where your context lives.</strong> Files and instructions every new chat in it already knows.</p>
+        </div>
+        <div>
+          <h4>Skill</h4>
+          <p><strong>How a task gets done.</strong> The same steps, the same way, every time.</p>
+        </div>
+        <div>
+          <h4>Artifact</h4>
+          <p><strong>What comes out.</strong> A keepable, editable output beside the chat.</p>
+        </div>
+      </div>
 
       <h3 class="sub">Projects — your reusable context</h3>
       <p>A Project is a persistent workspace for a recurring area of work. Claude remembers the same instructions and reference files across every chat inside it. This is what lets you start fresh chats fearlessly: your setup lives in the Project, not in any single conversation.</p>
@@ -529,7 +568,8 @@ Return the output as [format].</pre>
       <div class="callout"><span class="k">When a Skill earns its keep</span>Once you've done a task the same way more than a couple of times and you care that it comes out consistent, turn it into a Skill: a weekly reviews-into-themes summary in a set format, a PDP draft that always covers the same sections, a spreadsheet analysis with a consistent deliverable format. True one-offs stay in plain chat.</div>
 
       <h3 class="sub">Artifacts — keepable, editable outputs</h3>
-      <p>An Artifact is a standalone output Claude builds beside the chat instead of burying it in text: a polished document, a table, a chart, a small calculator or tool. Ask for one when the output is something you'll keep, refine, or hand off, not just read once. A reusable shipping-cost calculator, a returns-policy one-pager, a bundle-pricing table. If you would otherwise copy the answer into a doc and keep working on it, an Artifact is the better home.</p>
+      <p>An Artifact is a standalone output Claude builds beside the chat instead of burying it in text: a polished document, a table, a chart, a small calculator or tool. Think a reusable shipping-cost calculator, a returns-policy one-pager, a bundle-pricing table.</p>
+      <p>Ask for one when the output is something you'll keep, refine, or hand off, not just read once. If you would otherwise copy the answer into a doc and keep working on it, an Artifact is the better home.</p>
 
       <h4 class="sub">So which do I use?</h4>
       <div class="table-wrap">
@@ -551,7 +591,7 @@ Return the output as [format].</pre>
       <h2>Choosing a model without getting cut off</h2>
       <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Default to Sonnet.</strong> Save Opus for genuinely hard problems, and touch Fable almost never.</span></p>
       <p class="lead">On our Team account you pick the model from a dropdown at the top of the chat. The one thing to understand: capability and cost rise together. The smarter the model, the faster it eats your usage limit.</p>
-      <div class="table-wrap">
+      <div class="table-wrap wide breakout">
         <table>
           <thead><tr><th>Model</th><th>Best for</th><th>On our plan</th></tr></thead>
           <tbody>
@@ -613,7 +653,7 @@ Return the output as [format].</pre>
       <h2>What AI is good and bad at</h2>
       <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Great with words, shaky with facts.</strong> Lean on it for language and synthesis, double-check anything with real cost.</span></p>
       <p>It's strongest when the task involves language, structure, synthesis, or pattern recognition.</p>
-      <div class="pillars">
+      <div class="pillars breakout">
         <div class="pillar good">
           <h4>Great uses</h4>
           <ul>
@@ -656,7 +696,7 @@ Return the output as [format].</pre>
       <span class="eyebrow">08 · Tools</span>
       <h2>Working inside your tools</h2>
       <p class="takeaway"><span class="k">In one line</span><span class="t"><strong>Let Claude reach into your tools (browser, Drive, email) for grunt work, with a hand on the wheel.</strong> Keep it out of admin, payments, and anything irreversible.</span></p>
-      <p>There are two ways to use claude on the web, and they suit different work.</p>
+      <p>There are two ways to use Claude on the web, and they suit different work.</p>
       <div class="duo">
         <div>
           <h4>Switch-to-AI</h4>
@@ -676,7 +716,8 @@ Return the output as [format].</pre>
       <div class="callout ink"><span class="k">Safe use</span>Start with reading and summarizing. Use trusted sites. Review actions before they run. <strong>Never</strong> use it for transactions, passwords, or anything irreversible, and don't let it into Shopify admin, payment, or fulfillment systems. Web pages can carry hidden instructions (prompt injection), so keep a hand on the wheel.</div>
 
       <h3 class="sub">Connectors</h3>
-      <p>Connectors plug Claude into the apps we already use, so it can pull from them right inside a chat instead of you copy-pasting. First-party connectors on our Team plan cover <strong>Google Drive, Gmail, Google Calendar, GitHub, Microsoft 365, and Slack</strong>. Once connected, Claude can search them and act in them, only when you ask: "find the supplier contract in my Drive and summarize the payment terms," or "pull this week's calendar and draft an agenda." They work in any chat, in a Project or not.</p>
+      <p>Connectors plug Claude into the apps we already use, so it can pull from them right inside a chat instead of you copy-pasting. First-party connectors on our Team plan cover <strong>Google Drive, Gmail, Google Calendar, GitHub, Microsoft 365, and Slack</strong>.</p>
+      <p>Once connected, Claude can search them and act in them, only when you ask: "find the supplier contract in my Drive and summarize the payment terms," or "pull this week's calendar and draft an agenda." They work in any chat, in a Project or not.</p>
       <p><strong>Turning them on is two steps:</strong></p>
       <ol class="steps">
         <li>An account <strong>Owner</strong> switches connectors on for the whole org (that's Adam for us). Until that happens, nobody sees them.</li>
